@@ -6,10 +6,10 @@ Last Updated: 1-21-2017
 Table of Content:
 ------------------------
 1) Introduction
-2) Approach 
-3) Data post-processing
-4) 
-5)
+2) Data Collection
+3) Visualizing Data
+4) Data Post Processing
+5) Generate Train Set
 
 
 
@@ -48,5 +48,6 @@ To futher reduce the dimension, I removed every other pixal from the image. This
 
 <img width="506" alt="screen shot 2017-01-29 at 9 54 34 pm" src="https://cloud.githubusercontent.com/assets/22971963/22450034/d0cb5bc0-e718-11e6-86a3-3100c6a58d02.png">
 
-
-
+Generate Training Set
+------------------------
+When training the model, it is important to not over fit the model to the training set. To avoid this problem, a logical thing to do is to do image augmentation. This is basically creating more training examples from the existing examples. From image augmentation, I decided to used the following techniques: random translating the image, randomly flipping the image and randomly applying different brightness of the image.
