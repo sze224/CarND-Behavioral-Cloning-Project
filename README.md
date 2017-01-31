@@ -38,10 +38,15 @@ Data Post Processing
 ------------------------
 When recording with the simulator, the simulator return images with size of 160,320,3 since this is the size of the simulator window selected. However, in looking at the images, there are many unecessary information that can be removed. 
 
-<img width="510" alt="screen shot 2017-01-29 at 9 05 57 pm" src="https://cloud.githubusercontent.com/assets/22971963/22412767/c1e6e208-e666-11e6-9515-9ab90ebdee7d.png">
+<img width="536" alt="screen shot 2017-01-30 at 6 19 19 pm" src="https://cloud.githubusercontent.com/assets/22971963/22450017/b274510e-e718-11e6-8cfd-5f51416e7dd6.png">
 
+The feature that is most important from the image is the line marking. Therefore, I removed the upper portion of the image that shows the sky and only retain the portion that shows the line marking and the road. This can not only reduce the dimension of the image but also decrease the training time. 
 
-The feature that is most important from the image is the line marking. Therefore, I removed the upper portion of the image that shows the sky and only retain the portion that shows the line marking and the road. This can not only reduce the dimension of the image but also increase the training time. 
+<img width="511" alt="screen shot 2017-01-29 at 9 54 29 pm" src="https://cloud.githubusercontent.com/assets/22971963/22450044/ebeb6a3a-e718-11e6-8201-00f2ca41a849.png">
+
+To futher reduce the dimension, I removed every other pixal from the image. This proved to be not too important as there are not performance difference different that image and the full image. However, it does reduce training time.
+
+<img width="506" alt="screen shot 2017-01-29 at 9 54 34 pm" src="https://cloud.githubusercontent.com/assets/22971963/22450034/d0cb5bc0-e718-11e6-86a3-3100c6a58d02.png">
 
 
 
