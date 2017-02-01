@@ -1,17 +1,25 @@
 Author: Sze Wun Wong
 Title: CarND-Behavioral-Cloning
 Date Created: 1-21-2017
-Last Updated: 1-21-2017
+Last Updated: 1-31-2017
 
 Table of Content:
 ------------------------
 1) Introduction
+
 2) Data Collection
+
 3) Visualizing Data
+
 4) Data Post Processing
+
 5) Generate Train Set
 
+6) Model Architecture/ Parameters
 
+7) Reflection
+
+8) video links
 
 Introduction:
 ------------------------
@@ -57,3 +65,16 @@ When training the model, it is important to not over fit the model to the traini
 2) The goal of using left and right camera is again to address the problem of recovery from off position (edge of the road or close to un driveable area). Again, when using the left and right camera images, it is important to add a bias to the steer angle. It is important to pick a bias that will not only allow the car to stay in the drivable area, but also have a small oscillation.
 
 3) As noted in the "visualizing data" section, we see that there are more data with a negative steer angle than positive steer angle. It is important to try to balance out the data so the model doesn't overfit. This way that I approach this is to randomly flip the image and negate the steer angle. This way there will be training data from with negative steer angles and positive steer angle.
+
+Model Architecture/ Parameters
+------------------------
+<img width="171" alt="screen shot 2017-01-31 at 7 29 29 pm" src="https://cloud.githubusercontent.com/assets/22971963/22494352/a3bd9f5c-e7eb-11e6-88b4-e987d78c7bb9.png">
+
+The parameters of the model were determined by trial and error. However, this model's basic structure is pattern after the famous VGG net. VGG net is a network of repeating 3x3 convolution layer and follow by flattened layers at the end. In looking at my model, it also contain repeating 3x3 convolution and flattened layer at the end before final activation. One important feature of this network is that the Input image will first go through a 1x1 convolution. The goal for this layer is to have the network determine which color channel is the most important when training the model. 
+
+This model is using the Adam optimizer with the objective of reducing the mean squared error. The reason that Adam optimizer was chosen is because of the lower number of parameters to tune and the good performance. The model trained using 8 epochs, in this case, the number of epoch is important as a high value will overfit the model. 
+
+
+Reflection
+------------------------
+This is a really interesting project in which it drive home the point of the important of size and variety of data. Image augmentation is extremely important for this project. Since we are only driving only in one track, it is important to not overfit the model to which it can only drive on that track. By randomly translating, fliping and changing the brightness of the image, I can basically create infinite set of training set from one image. This can in turn generalize the data set to where the car can drive in different condition. Sometime, having a good and large data set is better than haveing a good model.
