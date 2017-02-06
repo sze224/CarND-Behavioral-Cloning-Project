@@ -6,15 +6,16 @@ import pandas as pd
 import cv2
 from sklearn.utils import shuffle
 from keras.models import Model
-from keras.layers import Dense, Input, Flatten, Conv2D, MaxPooling2D, Dropout, merge, Lambda
+from keras.layers import Dense, Input, Flatten, Conv2D, MaxPooling2D, Dropout, merge, Lambda, ELU
 import pickle
+import math
 
 # define functions
 # min_max_scaling function to normalize images
 
 def get_batch(X, y, keep_prob, batch_size):
-    X_batch = np.zeros((batch_size, 35, 140, 3))
-    y_batch = np.zeros((batch_size))
+    X_batch = np.zeros((batch_size, 60, 60, 3))
+    y_batch = np.zeros((batch_size))	
     while 1:
         for i in range (batch_size):
             done = 0
@@ -26,9 +27,9 @@ def get_batch(X, y, keep_prob, batch_size):
                 if pos == 0:
                     steer = y[ind]
                 elif pos == 1:
-                    steer = y[ind] + .18
+                    steer = y[ind] + .2
                 elif pos == 2:
-                    steer = y[ind] - .18
+                    steer = y[ind] - .2
                 X_1, y_1 = image_augmentation(img, steer)
                 if abs(y_1) < 0.1:
                     drop = np.random.uniform()
@@ -36,15 +37,16 @@ def get_batch(X, y, keep_prob, batch_size):
                         done = 1
                 else:
                     done = 1
-            X_1 = X_1[60:130:2, 20:300:2, :]
+            shape = X_1.shape
+            X_1 = X_1[int(math.floor(shape[0])/5):int(math.floor(4*shape[0]/5)), int(math.floor(shape[1])/8):int(math.floor(7*shape[1]/8)), :]
+            X_1 = cv2.resize(X_1,(60,60), interpolation=cv2.INTER_AREA) 
             X_batch[i] = X_1
             y_batch[i] = y_1    
         yield X_batch, y_batch
 
 
 def image_augmentation(img, steer_ang):
-    
-    steer_bias = 0.002
+    steer_bias = 0.005
     # randomly translate image to mimic car at different position
     t_x = 100*np.random.uniform()-100/2
     t_y = 10*np.random.uniform()-10/2
@@ -63,6 +65,8 @@ def image_augmentation(img, steer_ang):
         img_out = cv2.flip(img_out,1)
         new_steer = -new_steer
     
+
+
     return img_out, new_steer
 
 # read in image names and steer angle from csv file
@@ -73,34 +77,44 @@ R = data[2]
 steer_angle = data[3]
 X = [C, L, R]
 
+
 # Model Structure 
-input_shape = (35, 140, 3)
+input_shape = (60,60,3)
 inp = Input(shape = input_shape)
 
 # first layer: 1x1 convolution to pick out the best color channel
-x1 = Lambda(lambda x: x/255. -0.5, input_shape=input_shape)(inp)
-
+x0 = Lambda(lambda x: x/255. -0.5, input_shape=input_shape)(inp)
+x1 = Conv2D(3,1,1, border_mode='same')(x0)
+x1 = ELU()(x1)
 # second layer: 2 3X3 convolution 
-x2 = Conv2D(32,3,3, border_mode='same', activation = 'relu')(x1)
-x2 = Conv2D(32,3,3, border_mode='same', activation = 'relu')(x2)
+x2 = Conv2D(32,3,3, border_mode='same')(x1)
+x2 = ELU()(x2)
+x2 = Conv2D(32,3,3, border_mode='same')(x2)
+x2 = ELU()(x2)
 x2 = MaxPooling2D((2,2))(x2)
 x2 = Dropout(0.5)(x2)
 
 # third layer: 2 3X3 convolution
-x3 = Conv2D(64,3,3, border_mode='same', activation = 'relu')(x2)
-x3 = Conv2D(64,3,3, border_mode='same', activation = 'relu')(x3)
+x3 = Conv2D(64,3,3, border_mode='same')(x2)
+x3 = ELU()(x3)
+x3 = Conv2D(64,3,3, border_mode='same')(x3)
+x3 = ELU()(x3)
 x3 = MaxPooling2D((2,2))(x3)
 x3 = Dropout(0.5)(x3)
 
 # third layer: 2 3X3 convolution
-x4 = Conv2D(64,3,3, border_mode='same', activation = 'relu')(x3)
-x4 = Conv2D(64,3,3, border_mode='same', activation = 'relu')(x4)
+x4 = Conv2D(64,3,3, border_mode='same')(x3)
+x4 = ELU()(x4)
+x4 = Conv2D(64,3,3, border_mode='same')(x4)
+x4 = ELU()(x4)
 x4 = MaxPooling2D((2,2))(x4)
 x4 = Dropout(0.5)(x4)
 
 x5 = Flatten()(x4)
-x6 = Dense(512, activation = 'relu')(x5)
-x7 = Dense(128, activation = 'relu')(x6)
+x6 = Dense(512)(x5)
+x6 = ELU()(x6)
+x7 = Dense(128)(x6)
+x7 = ELU()(x7)
 out = Dense(1, activation = 'linear')(x7)
 
 
@@ -112,9 +126,9 @@ model.compile(optimizer = 'adam', loss = 'mse')
 
 # train model 
 print('Training...')
-for j in range (5):
+for j in range (8):
     keep_prob = 1/(j+1)  
-    model.fit_generator(get_batch(X, steer_angle, keep_prob, 256), nb_epoch = 1, samples_per_epoch = 20000)
+    model.fit_generator(get_batch(X, steer_angle, keep_prob, 256), nb_epoch = 1, samples_per_epoch = 20480)
 
 # save model and weight
 model_json = model.to_json()
