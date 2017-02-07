@@ -88,8 +88,8 @@ This is a really interesting project in which it drive home the point of the imp
 
 Video of result (all training is done one track 1 and the model has not seen track 2)
 ------------------------
-Track1: https://youtu.be/BmQqQR9YmYg
-Track2: https://youtu.be/dIoqHEhJvn8
+Track1: https://www.youtube.com/watch?v=hpTUgs1y-Eg
+Track2: https://www.youtube.com/watch?v=LSm-btK1JJI
 
 
 
